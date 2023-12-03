@@ -313,8 +313,8 @@ class _DraggableHomeState extends State<DraggableHome> {
       height: widget.curvedBodyRadius,
       width: double.infinity,
       child: CustomPaint(
-        painter: RPSCustomPainter3(
-            backGroundColor: widget.backgroundColor ?? const Color(0xffF4F6F8)),
+        painter: RPSCustomPainter(
+            backGroundShape:  widget.backgroundColor ?? const Color(0xffF4F6F8)),
       ),
     );
   }
@@ -371,100 +371,95 @@ class _DraggableHomeState extends State<DraggableHome> {
   }
 }
 
-class RPSCustomPainter3 extends CustomPainter {
-  Color backGroundColor;
+class RPSCustomPainter extends CustomPainter {
+  Color? smallShape;
+  Color? backGroundShape;
 
-
-
-  RPSCustomPainter3({required this.backGroundColor});
-
+  RPSCustomPainter({ this.backGroundShape,  this.smallShape});
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint0Fill = Paint()..style = PaintingStyle.fill;
-    paint0Fill.color = Colors.transparent;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint0Fill);
+    Path path_0 = Path();
+    path_0.moveTo(0, size.height);
+    path_0.cubicTo(
+        0,
+        size.height * 0.5029450,
+        size.width * 0.02066379,
+        size.height * 0.1000000,
+        size.width * 0.04615385,
+        size.height * 0.1000000);
+    path_0.lineTo(size.width * 0.3501846, size.height * 0.1000000);
+    path_0.cubicTo(
+        size.width * 0.3572872,
+        size.height * 0.1000000,
+        size.width * 0.3642923,
+        size.height * 0.1319570,
+        size.width * 0.3706564,
+        size.height * 0.1933840);
+    path_0.lineTo(size.width * 0.4108846, size.height * 0.5816150);
+    path_0.cubicTo(
+        size.width * 0.4172487,
+        size.height * 0.6430450,
+        size.width * 0.4242615,
+        size.height * 0.6750000,
+        size.width * 0.4313615,
+        size.height * 0.6750000);
+    path_0.cubicTo(
+        size.width * 0.4830000,
+        size.height * 0.6750000,
+        size.width * 0.5161077,
+        size.height * 0.6750000,
+        size.width * 0.5678333,
+        size.height * 0.6750000);
+    path_0.cubicTo(
+        size.width * 0.5747000,
+        size.height * 0.6750000,
+        size.width * 0.5814872,
+        size.height * 0.6451250,
+        size.width * 0.5876872,
+        size.height * 0.5875550);
+    path_0.lineTo(size.width * 0.6307718, size.height * 0.1874430);
+    path_0.cubicTo(
+        size.width * 0.6369692,
+        size.height * 0.1298735,
+        size.width * 0.6437487,
+        size.height * 0.1000000,
+        size.width * 0.6506154,
+        size.height * 0.1000000);
+    path_0.lineTo(size.width * 0.9538462, size.height * 0.1000000);
+    path_0.cubicTo(size.width * 0.9793359, size.height * 0.1000000, size.width,
+        size.height * 0.5029450, size.width, size.height);
+    path_0.lineTo(size.width, size.height);
+    path_0.lineTo(0, size.height);
+    path_0.lineTo(0, size.height);
+    path_0.close();
+
+    Paint paintCustomFill = Paint();
+    //   ..style = PaintingStyle.fill..color = backGroundShape ?? Colors.black;
+    // Paint paint0Fill = Paint()
+    //   ..style = PaintingStyle.fill
+    //   ..shader =
+    //   // AppColors.cardColor.createShader(
+    //   //     const Rect.fromLTWH(1000, 10, 0, 300)
+    //     // Rect.fromCenter(center: Offset(500, 150), width: 0, height: 300)
+    //   // );
+    canvas.drawPath(path_0,
+        // backGroundShape ==null? paint0Fill :
+        paintCustomFill);
 
     Path path_1 = Path();
-    path_1.moveTo(size.width * -0.007812500, size.height * 1.708333);
-    path_1.cubicTo(
-        size.width * -0.007812500,
-        size.height * 0.7878583,
-        size.width * 0.03882448,
-        size.height * 0.04166667,
-        size.width * 0.09635417,
-        size.height * 0.04166667);
-    path_1.lineTo(size.width * 0.3789271, size.height * 0.04166667);
-    path_1.cubicTo(
-        size.width * 0.4004167,
-        size.height * 0.04166667,
-        size.width * 0.4213594,
-        size.height * 0.1498871,
-        size.width * 0.4387865,
-        size.height * 0.3509858);
-    path_1.lineTo(size.width * 0.4387865, size.height * 0.3509858);
-    path_1.cubicTo(
-        size.width * 0.4745313,
-        size.height * 0.7634125,
-        size.width * 0.5227604,
-        size.height * 0.7634125,
-        size.width * 0.5585052,
-        size.height * 0.3509858);
-    path_1.lineTo(size.width * 0.5585052, size.height * 0.3509858);
-    path_1.cubicTo(
-        size.width * 0.5759323,
-        size.height * 0.1498871,
-        size.width * 0.5968750,
-        size.height * 0.04166667,
-        size.width * 0.6183646,
-        size.height * 0.04166667);
-    path_1.lineTo(size.width * 0.9036458, size.height * 0.04166667);
-    path_1.cubicTo(
-        size.width * 0.9611745,
-        size.height * 0.04166667,
-        size.width * 1.007813,
-        size.height * 0.7878583,
-        size.width * 1.007813,
-        size.height * 1.708333);
-    path_1.lineTo(size.width * 1.007813, size.height * 15.04167);
-    path_1.lineTo(size.width * -0.007812500, size.height * 15.04167);
-    path_1.lineTo(size.width * -0.007812500, size.height * 1.708333);
-    path_1.close();
+    path_1.moveTo(size.width * 0.4435897, size.height * 0.1000000);
+    path_1.lineTo(size.width * 0.5564103, size.height * 0.1000000);
 
-    Paint paint1Fill = Paint()..style = PaintingStyle.fill;
-    paint1Fill.color = backGroundColor;
-    canvas.drawPath(path_1, paint1Fill);
+    Paint paint_1_stroke = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.01025641;
+    paint_1_stroke.color = smallShape ?? Colors.white.withOpacity(0.64);
+    paint_1_stroke.strokeCap = StrokeCap.round;
+    canvas.drawPath(path_1, paint_1_stroke);
 
-    Path path_2 = Path();
-    path_2.moveTo(size.width * 0.4855781, size.height * 0.3621796);
-    path_2.cubicTo(
-        size.width * 0.4750677,
-        size.height * 0.2921108,
-        size.width * 0.4781979,
-        size.height * 0.04166667,
-        size.width * 0.4895833,
-        size.height * 0.04166667);
-    path_2.lineTo(size.width * 0.5104167, size.height * 0.04166667);
-    path_2.cubicTo(
-        size.width * 0.5218021,
-        size.height * 0.04166667,
-        size.width * 0.5249323,
-        size.height * 0.2921108,
-        size.width * 0.5144219,
-        size.height * 0.3621796);
-    path_2.lineTo(size.width * 0.5040052, size.height * 0.4316250);
-    path_2.cubicTo(
-        size.width * 0.5014427,
-        size.height * 0.4487167,
-        size.width * 0.4985573,
-        size.height * 0.4487167,
-        size.width * 0.4959948,
-        size.height * 0.4316250);
-    path_2.lineTo(size.width * 0.4855781, size.height * 0.3621796);
-    path_2.close();
-
-    Paint paint2Fill = Paint()..style = PaintingStyle.fill;
-    paint2Fill.color = backGroundColor;
-    canvas.drawPath(path_2, paint2Fill);
+    Paint paint_1_fill = Paint()..style = PaintingStyle.fill;
+    paint_1_fill.color = Color(0xff000000).withOpacity(1.0);
+    canvas.drawPath(path_1, paint_1_fill);
   }
 
   @override
