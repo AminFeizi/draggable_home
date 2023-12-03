@@ -83,6 +83,7 @@ class DraggableHome extends StatefulWidget {
 
   final ScrollPhysics? physics;
   final PreferredSizeWidget? appBar;
+  final ScrollController? scrollController;
 
   /// This will create DraggableHome.
   const DraggableHome(
@@ -90,6 +91,7 @@ class DraggableHome extends StatefulWidget {
         this.leading,
         required this.title,
         this.centerTitle = true,
+        this.scrollController ,
         this.actions,
         this.alwaysShowLeadingAndAction = false,
         this.alwaysShowTitle = false,
@@ -199,6 +201,7 @@ class _DraggableHomeState extends State<DraggableHome> {
       ) {
     return CustomScrollView(
       physics: widget.physics,
+      controller: widget.scrollController,
       slivers: [
 
         StreamBuilder<List<bool>>(
