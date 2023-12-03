@@ -371,6 +371,8 @@ class _DraggableHomeState extends State<DraggableHome> {
 class RPSCustomPainter3 extends CustomPainter {
   Color backGroundColor;
 
+
+
   RPSCustomPainter3({required this.backGroundColor});
 
   @override
