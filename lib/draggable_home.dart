@@ -1,6 +1,7 @@
 library draggable_home;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
 class DraggableHome extends StatefulWidget {
@@ -80,54 +81,52 @@ class DraggableHome extends StatefulWidget {
   /// floatingActionButtonAnimator: Provider of animations to move the FloatingActionButton between FloatingActionButtonLocations.
   final FloatingActionButtonAnimator? floatingActionButtonAnimator;
 
-  /// physics: How the scroll view should respond to user input. For example, determines how the scroll view continues to animate after the user stops dragging the scroll view.
   final ScrollPhysics? physics;
-
-  /// scrollController: An object that can be used to control the position to which this scroll view is scrolled.
-  final ScrollController? scrollController;
+  final PreferredSizeWidget? appBar;
 
   /// This will create DraggableHome.
-  const DraggableHome({
-    Key? key,
-    this.leading,
-    required this.title,
-    this.centerTitle = true,
-    this.actions,
-    this.alwaysShowLeadingAndAction = false,
-    this.alwaysShowTitle = false,
-    this.headerExpandedHeight = 0.35,
-    required this.headerWidget,
-    this.headerBottomBar,
-    this.backgroundColor,
-    this.appBarColor,
-    this.curvedBodyRadius = 20,
-    required this.body,
-    this.drawer,
-    this.fullyStretchable = false,
-    this.stretchTriggerOffset = 200,
-    this.expandedBody,
-    this.stretchMaxHeight = 0.9,
-    this.bottomSheet,
-    this.bottomNavigationBarHeight = kBottomNavigationBarHeight,
-    this.bottomNavigationBar,
-    this.floatingActionButton,
-    this.floatingActionButtonLocation,
-    this.floatingActionButtonAnimator,
-    this.physics,
-    this.scrollController,
-  })  : assert(headerExpandedHeight > 0.0 &&
-            headerExpandedHeight < stretchMaxHeight),
+  const DraggableHome(
+      {Key? key,
+        this.leading,
+        required this.title,
+        this.centerTitle = true,
+        this.actions,
+        this.alwaysShowLeadingAndAction = false,
+        this.alwaysShowTitle = false,
+        this.headerExpandedHeight = 0.35,
+        required this.headerWidget,
+        this.headerBottomBar,
+        this.backgroundColor,
+        this.appBarColor,
+        this.curvedBodyRadius = 20,
+        required this.body,
+        this.drawer,
+        this.fullyStretchable = false,
+        this.stretchTriggerOffset = 200,
+        this.expandedBody,
+        this.stretchMaxHeight = 0.9,
+        this.bottomSheet,
+        this.appBar,
+        this.bottomNavigationBarHeight = kBottomNavigationBarHeight,
+        this.bottomNavigationBar,
+        this.floatingActionButton,
+        this.floatingActionButtonLocation,
+        this.floatingActionButtonAnimator,
+        this.physics})
+      : assert(headerExpandedHeight > 0.0 &&
+      headerExpandedHeight < stretchMaxHeight),
         assert(
-          (stretchMaxHeight > headerExpandedHeight) && (stretchMaxHeight < .95),
+        (stretchMaxHeight > headerExpandedHeight) && (stretchMaxHeight < .95),
         ),
         super(key: key);
 }
 
 class _DraggableHomeState extends State<DraggableHome> {
   final BehaviorSubject<bool> isFullyExpanded =
-      BehaviorSubject<bool>.seeded(false);
+  BehaviorSubject<bool>.seeded(false);
   final BehaviorSubject<bool> isFullyCollapsed =
-      BehaviorSubject<bool>.seeded(false);
+  BehaviorSubject<bool>.seeded(false);
+
 
   @override
   void dispose() {
@@ -149,87 +148,102 @@ class _DraggableHomeState extends State<DraggableHome> {
     final double fullyExpandedHeight =
         MediaQuery.of(context).size.height * (widget.stretchMaxHeight);
 
-    return Scaffold(
-      backgroundColor:
-          widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-      drawer: widget.drawer,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          if (notification.metrics.axis == Axis.vertical) {
-            // isFullyCollapsed
-            if ((isFullyExpanded.value) &&
-                notification.metrics.extentBefore > 100) {
-              isFullyExpanded.add(false);
+    return NotificationListener<OverscrollIndicatorNotification>(
+      onNotification: (OverscrollIndicatorNotification notification) {
+        notification.disallowIndicator();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor:
+        widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        drawer: widget.drawer,
+        appBar: widget.appBar,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.axis == Axis.vertical) {
+              // isFullyCollapsed
+              if ((isFullyExpanded.value) &&
+                  notification.metrics.extentBefore > 100) {
+                isFullyExpanded.add(false);
+              }
+              //isFullyCollapsed
+              if (notification.metrics.extentBefore >
+                  expandedHeight - AppBar().preferredSize.height - 40) {
+                if (!(isFullyCollapsed.value)) isFullyCollapsed.add(true);
+              } else {
+                if ((isFullyCollapsed.value)) isFullyCollapsed.add(false);
+              }
             }
-            //isFullyCollapsed
-            if (notification.metrics.extentBefore >
-                expandedHeight - AppBar().preferredSize.height - 40) {
-              if (!(isFullyCollapsed.value)) isFullyCollapsed.add(true);
-            } else {
-              if ((isFullyCollapsed.value)) isFullyCollapsed.add(false);
-            }
-          }
-          return false;
-        },
-        child: sliver(context, appBarHeight, fullyExpandedHeight,
-            expandedHeight, topPadding),
+            return false;
+          },
+          child: sliver(context, appBarHeight, fullyExpandedHeight,
+              expandedHeight, topPadding),
+        ),
+        bottomSheet: widget.bottomSheet,
+
+        bottomNavigationBar: widget.bottomNavigationBar,
+        floatingActionButton: widget.floatingActionButton,
+        floatingActionButtonLocation: widget.floatingActionButtonLocation,
+        floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
       ),
-      bottomSheet: widget.bottomSheet,
-      bottomNavigationBar: widget.bottomNavigationBar,
-      floatingActionButton: widget.floatingActionButton,
-      floatingActionButtonLocation: widget.floatingActionButtonLocation,
-      floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
     );
   }
 
-  CustomScrollView sliver(
-    BuildContext context,
-    double appBarHeight,
-    double fullyExpandedHeight,
-    double expandedHeight,
-    double topPadding,
-  ) {
+
+  Widget sliver(
+      BuildContext context,
+      double appBarHeight,
+      double fullyExpandedHeight,
+      double expandedHeight,
+      double topPadding,
+      ) {
     return CustomScrollView(
-      physics: widget.physics ?? const BouncingScrollPhysics(),
-      controller: widget.scrollController,
+      physics: widget.physics,
       slivers: [
+
         StreamBuilder<List<bool>>(
           stream: CombineLatestStream.list<bool>([
             isFullyCollapsed.stream,
             isFullyExpanded.stream,
           ]),
-          builder: (BuildContext context, AsyncSnapshot<List<bool>> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<List<bool>> snapshot) {
             final List<bool> streams = (snapshot.data ?? [false, false]);
             final bool fullyCollapsed = streams[0];
             final bool fullyExpanded = streams[1];
-
             return SliverAppBar(
-              backgroundColor:
-                  !fullyCollapsed ? widget.backgroundColor : widget.appBarColor,
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarBrightness: Brightness.dark,
+                  statusBarIconBrightness: Brightness.dark),
+              toolbarHeight: fullyCollapsed ? 0 : kToolbarHeight,
+              backgroundColor: !fullyCollapsed
+                  ? widget.backgroundColor
+                  : widget.appBarColor,
               leading: widget.alwaysShowLeadingAndAction
                   ? widget.leading
                   : !fullyCollapsed
-                      ? const SizedBox()
-                      : widget.leading,
+                  ? const SizedBox()
+                  : widget.leading,
               actions: widget.alwaysShowLeadingAndAction
                   ? widget.actions
                   : !fullyCollapsed
-                      ? []
-                      : widget.actions,
+                  ? []
+                  : widget.actions,
               elevation: 0,
               pinned: true,
-              stretch: true,
+              stretch: false,
               centerTitle: widget.centerTitle,
               title: widget.alwaysShowTitle
                   ? widget.title
                   : AnimatedOpacity(
-                      opacity: fullyCollapsed ? 1 : 0,
-                      duration: const Duration(milliseconds: 100),
-                      child: widget.title,
-                    ),
-              collapsedHeight: appBarHeight,
+                opacity: fullyCollapsed ? 1 : 0,
+                duration: const Duration(milliseconds: 100),
+                child: widget.title,
+              ),
+              collapsedHeight: fullyCollapsed ? null : appBarHeight,
               expandedHeight:
-                  fullyExpanded ? fullyExpandedHeight : expandedHeight,
+              fullyExpanded ? fullyExpandedHeight : expandedHeight,
               flexibleSpace: Stack(
                 children: [
                   FlexibleSpaceBar(
@@ -244,25 +258,32 @@ class _DraggableHomeState extends State<DraggableHome> {
                     bottom: -1,
                     left: 0,
                     right: 0,
-                    child: roundedCorner(context),
+                    child: Column(
+                      children: [
+                        Container(
+
+                            color: Colors.transparent,
+                            child: roundedCorner(context)),
+                      ],
+                    ),
                   ),
                   Positioned(
                     bottom: 0 + widget.curvedBodyRadius,
                     child: AnimatedContainer(
-                      padding: const EdgeInsets.only(left: 10, right: 10),
+                      padding: const EdgeInsets.only(left: 10, right: 10 ),
                       curve: Curves.easeInOutCirc,
                       duration: const Duration(milliseconds: 100),
                       height: fullyCollapsed
                           ? 0
                           : fullyExpanded
-                              ? 0
-                              : kToolbarHeight,
+                          ? 0
+                          : kToolbarHeight,
                       width: MediaQuery.of(context).size.width,
                       child: fullyCollapsed
                           ? const SizedBox()
                           : fullyExpanded
-                              ? const SizedBox()
-                              : widget.headerBottomBar ?? Container(),
+                          ? const SizedBox()
+                          : widget.headerBottomBar ?? Container(),
                     ),
                   )
                 ],
@@ -270,46 +291,50 @@ class _DraggableHomeState extends State<DraggableHome> {
               stretchTriggerOffset: widget.stretchTriggerOffset,
               onStretchTrigger: widget.fullyStretchable
                   ? () async {
-                      if (!fullyExpanded) isFullyExpanded.add(true);
-                    }
+                if (!fullyExpanded) isFullyExpanded.add(true);
+              }
                   : null,
             );
           },
         ),
-        sliverList(context, appBarHeight + topPadding),
+        Container(
+
+            child: sliverList(context, appBarHeight + topPadding)),
       ],
     );
   }
 
-  Container roundedCorner(BuildContext context) {
+  Widget roundedCorner(BuildContext context) {
     return Container(
+      margin: const EdgeInsetsDirectional.only(bottom: 8),
       height: widget.curvedBodyRadius,
-      decoration: BoxDecoration(
-        color:
-            widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(widget.curvedBodyRadius),
-        ),
+      width: double.infinity,
+      child: CustomPaint(
+        painter: RPSCustomPainter3(
+            backGroundColor: widget.backgroundColor ?? const Color(0xffF4F6F8)),
       ),
     );
   }
 
   SliverList sliverList(BuildContext context, double topHeight) {
     final double bottomPadding =
-        widget.bottomNavigationBar == null ? 0 : kBottomNavigationBarHeight;
+    widget.bottomNavigationBar == null ? 0 : kBottomNavigationBarHeight;
     return SliverList(
+
       delegate: SliverChildListDelegate(
         [
           Stack(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height -
+
+                height:
+                !isFullyCollapsed.value ? 0 :
+                MediaQuery.of(context).size.height -
                     topHeight -
                     bottomPadding,
-                color: widget.backgroundColor ??
-                    Theme.of(context).scaffoldBackgroundColor,
               ),
               Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   expandedUpArrow(),
                   //Body
@@ -340,5 +365,105 @@ class _DraggableHomeState extends State<DraggableHome> {
         );
       },
     );
+  }
+}
+
+class RPSCustomPainter3 extends CustomPainter {
+  Color backGroundColor;
+
+  RPSCustomPainter3({required this.backGroundColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint0Fill = Paint()..style = PaintingStyle.fill;
+    paint0Fill.color = Colors.transparent;
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint0Fill);
+
+    Path path_1 = Path();
+    path_1.moveTo(size.width * -0.007812500, size.height * 1.708333);
+    path_1.cubicTo(
+        size.width * -0.007812500,
+        size.height * 0.7878583,
+        size.width * 0.03882448,
+        size.height * 0.04166667,
+        size.width * 0.09635417,
+        size.height * 0.04166667);
+    path_1.lineTo(size.width * 0.3789271, size.height * 0.04166667);
+    path_1.cubicTo(
+        size.width * 0.4004167,
+        size.height * 0.04166667,
+        size.width * 0.4213594,
+        size.height * 0.1498871,
+        size.width * 0.4387865,
+        size.height * 0.3509858);
+    path_1.lineTo(size.width * 0.4387865, size.height * 0.3509858);
+    path_1.cubicTo(
+        size.width * 0.4745313,
+        size.height * 0.7634125,
+        size.width * 0.5227604,
+        size.height * 0.7634125,
+        size.width * 0.5585052,
+        size.height * 0.3509858);
+    path_1.lineTo(size.width * 0.5585052, size.height * 0.3509858);
+    path_1.cubicTo(
+        size.width * 0.5759323,
+        size.height * 0.1498871,
+        size.width * 0.5968750,
+        size.height * 0.04166667,
+        size.width * 0.6183646,
+        size.height * 0.04166667);
+    path_1.lineTo(size.width * 0.9036458, size.height * 0.04166667);
+    path_1.cubicTo(
+        size.width * 0.9611745,
+        size.height * 0.04166667,
+        size.width * 1.007813,
+        size.height * 0.7878583,
+        size.width * 1.007813,
+        size.height * 1.708333);
+    path_1.lineTo(size.width * 1.007813, size.height * 15.04167);
+    path_1.lineTo(size.width * -0.007812500, size.height * 15.04167);
+    path_1.lineTo(size.width * -0.007812500, size.height * 1.708333);
+    path_1.close();
+
+    Paint paint1Fill = Paint()..style = PaintingStyle.fill;
+    paint1Fill.color = backGroundColor;
+    canvas.drawPath(path_1, paint1Fill);
+
+    Path path_2 = Path();
+    path_2.moveTo(size.width * 0.4855781, size.height * 0.3621796);
+    path_2.cubicTo(
+        size.width * 0.4750677,
+        size.height * 0.2921108,
+        size.width * 0.4781979,
+        size.height * 0.04166667,
+        size.width * 0.4895833,
+        size.height * 0.04166667);
+    path_2.lineTo(size.width * 0.5104167, size.height * 0.04166667);
+    path_2.cubicTo(
+        size.width * 0.5218021,
+        size.height * 0.04166667,
+        size.width * 0.5249323,
+        size.height * 0.2921108,
+        size.width * 0.5144219,
+        size.height * 0.3621796);
+    path_2.lineTo(size.width * 0.5040052, size.height * 0.4316250);
+    path_2.cubicTo(
+        size.width * 0.5014427,
+        size.height * 0.4487167,
+        size.width * 0.4985573,
+        size.height * 0.4487167,
+        size.width * 0.4959948,
+        size.height * 0.4316250);
+    path_2.lineTo(size.width * 0.4855781, size.height * 0.3621796);
+    path_2.close();
+
+    Paint paint2Fill = Paint()..style = PaintingStyle.fill;
+    paint2Fill.color = backGroundColor;
+    canvas.drawPath(path_2, paint2Fill);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
